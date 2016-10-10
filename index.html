@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script src="../jquery-2.2.3.js"></script>
+</head>
+<body>
+	<input type="text" zyf-bind="a" name="aaaa">
+	<span zyf-bind="a"></span><br>
+	<button id="aaa">点击改变</button><br>
+	<button id="bbb">点击弹出a的值</button><br>
+
+</body>
+<!-- 
+	双向绑定的思路
+	变量绑定到input再绑定到指定标签
+ -->
+ <script>
+	function zyf (){
+		this.vals = []
+		this.init = function (){
+			this.getAllNames();
+			this.bindHandler();
+		}
+		this.getAllNames = function (){
+			var e = document.querySelectorAll("[zyf-bind]");
+			console.dir(e)
+			var len = e.length;
+			for(let i=0;i<len;i++){
+				var valname = e[i].getAttribute("zyf-bind")
+				if(this.inArray(valname))
+					continue;
+				this.vals.push({name:valname,val:""});
+			}
+			console.dir(this.vals)
+		}
+		this.bindHandler = function (){
+			var len  = this.vals.length;
+			var _this = this
+			var vals = this.vals;
+			for(var i=0;i<len;i++){
+				var e = document.querySelectorAll("[zyf-bind="+this.vals[i]["name"]+"]");
+				this.__defineSetter__(this.vals[i]["name"],function(v){
+					var len = e.length;
+					for(let k=0;k<len;k++){
+						if(e[k]["nodeName"]!="INPUT"){
+							e[k].innerHTML = v
+						}else{
+							e[k].value = v
+						}
+					}
+					return v;
+				})
+				this.__defineGetter__(this.vals[i]["name"],function(){
+					// return this.vals[i]["val"]
+				})
+				for(let k=0;k<len;k++){
+					console.log(e[k]["nodeName"]);
+					if(e[k]["nodeName"]=="INPUT"){
+						var name = this.vals[i]["name"]
+						e[k].oninput = function (){
+							// input改变的时候，所有标签bind相同名的标签中的值都会被改变
+							var vs = this.value;
+							var es = document.querySelectorAll("[zyf-bind="+name+"]");
+							var lens = es.length;
+							for(let j=0;j<lens;j++){
+								if(es[j]["nodeName"]!="INPUT"){
+									es[j].innerHTML = vs
+								}else{
+									es[j].value = vs
+								}
+							}
+						}
+					}
+				}
+				
+			}
+		}
+		this.inArray = function (vname){
+			for(let i in this.vals){
+				if(this.vals[i]["name"] == vname){
+					return true
+				}
+			}
+			return false;
+		}
+		this.init();
+	}
+	var a = new zyf();
+	$("#aaa").click(function(){
+		a.a = 2
+	})
+
+	$("#bbb").click(function(){
+		alert(a.a)
+	})
+	a.a =1
+	alert(a.a)
+ </script>
+</html>
