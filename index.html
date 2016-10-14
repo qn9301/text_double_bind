@@ -3,12 +3,13 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Document</title>
-	<script src="../jquery-2.2.3.js"></script>
 </head>
 <body>
-	<input type="text" zyf-bind="a" name="aaaa">
-	<span zyf-bind="a"></span><br>
-	<button id="aaa">点击改变</button><br>
+	<input type="text" zyf-bind="a" name="aaaa">这是一个绑定了a变量的input<br>
+	<span>这里输出绑定了a的标签的值：</span><span zyf-bind="a"></span><br>
+	<input type="text" zyf-bind="b" name="aaaa">这是一个绑定了b变量的input<br>
+	<span>这里输出绑定了b的标签的值：</span><span zyf-bind="b"></span><br>
+	<button id="aaa">点击改变a的值</button><br>
 	<button id="bbb">点击弹出a的值</button><br>
 
 </body>
@@ -39,8 +40,8 @@
 			var len  = this.vals.length;
 			var _this = this
 			var vals = this.vals;
-			for(var i=0;i<len;i++){
-				var e = document.querySelectorAll("[zyf-bind="+this.vals[i]["name"]+"]");
+			for(let i=0;i<len;i++){
+				let e = document.querySelectorAll("[zyf-bind="+this.vals[i]["name"]+"]");
 				this.__defineSetter__(this.vals[i]["name"],function(v){
 					var len = e.length;
 					for(let k=0;k<len;k++){
@@ -50,19 +51,20 @@
 							e[k].value = v
 						}
 					}
-					return v;
+					this.vals[i]['val'] = v
 				})
 				this.__defineGetter__(this.vals[i]["name"],function(){
-					// return this.vals[i]["val"]
+					return this.vals[i]["val"]
 				})
 				for(let k=0;k<len;k++){
 					console.log(e[k]["nodeName"]);
 					if(e[k]["nodeName"]=="INPUT"){
-						var name = this.vals[i]["name"]
+						let name = this.vals[i]["name"]
 						e[k].oninput = function (){
 							// input改变的时候，所有标签bind相同名的标签中的值都会被改变
 							var vs = this.value;
 							var es = document.querySelectorAll("[zyf-bind="+name+"]");
+							_this.changeVal(name,vs);
 							var lens = es.length;
 							for(let j=0;j<lens;j++){
 								if(es[j]["nodeName"]!="INPUT"){
@@ -77,6 +79,17 @@
 				
 			}
 		}
+		this.changeVal = function (key,value){
+			var len = this.vals.length
+			for(var i=0;i<len;i++){
+				if(this.vals[i]["name"]==key){
+					this.vals[i]["val"] = value
+					// alert(this.vals[i]["name"]);
+					// alert(key);
+					// alert(value);
+				}
+			}
+		}
 		this.inArray = function (vname){
 			for(let i in this.vals){
 				if(this.vals[i]["name"] == vname){
@@ -88,14 +101,14 @@
 		this.init();
 	}
 	var a = new zyf();
-	$("#aaa").click(function(){
+	document.getElementById("aaa").onclick =function(){
 		a.a = 2
-	})
-
-	$("#bbb").click(function(){
+	}
+	document.getElementById("bbb").onclick = function(){
 		alert(a.a)
-	})
+	}
 	a.a =1
-	alert(a.a)
+	a.a = 3
+	// alert(a.a)
  </script>
 </html>
